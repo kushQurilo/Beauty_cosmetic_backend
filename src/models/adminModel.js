@@ -6,7 +6,8 @@ const adminSchema = mongoose.Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     password: {
         type: String,
@@ -19,6 +20,14 @@ const adminSchema = mongoose.Schema({
     role: {
         type: String,
         default: 'admin'
+    },
+    failAttemp:{
+        type:Number,
+        default:0
+    },
+    lockAccount:{
+        type:Date,
+        default:null
     }
 })
 
