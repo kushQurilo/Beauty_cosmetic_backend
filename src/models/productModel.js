@@ -1,20 +1,28 @@
-const mongoose = require('mongoose');
-
-const variantSchema = new mongoose.Schema({
-  shade: String,
-  size: String,
-  finish: String,
-  price: { type: Number, required: true },
-  stock: Number,
-  images: [String]
-}, { _id: false });
-
+const mongoose = require('mongoose')
 const productSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  brand: String,
-  category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
-  description: String,
-  variants: [variantSchema]
-});
+  name:{
+    type:String
+  },
+  price:{
+    type:Number,
+    required:[true, 'price is required']
+  },
+  categoryId:{
+    type:mongoose.Schema.Types.ObjectId,
+    required:[true, 'categoryId is required'],
+    ref:'Category'
+  },
+  qunatity:{
+    type:String,
+    default:1
+  },
+  description:{
+    type:String
+  },
+  carter:{
+    type:Number,
+    default:0
+  }
+})
 
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.model('Product',productSchema);

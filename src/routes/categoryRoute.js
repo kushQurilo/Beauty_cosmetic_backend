@@ -1,6 +1,6 @@
 const { createCategory, updateCategory, deleteCategory, getAllCategory, getSingleCategory } = require('../controllers/categoryController.js/category');
 const { adminAuthentication } = require('../middlewares/AdminAuthetication');
-const { roleAuthetication } = require('../models/roleBaseAuthe');
+const { roleAuthetication } = require('../middlewares/roleBaseAuthe');
 
 const CategoryRouter = require('express').Router();
 

@@ -15,6 +15,7 @@ const cloudinary = require('./src/config/cloudinary/cloudinary');
 const ImageUpload = require('./src/middlewares/ImageUploader');
 const CategoryRouter = require('./src/routes/categoryRoute');
 const adminRouter = require('./src/routes/adminRoute');
+const ProductsRouter = require('./src/routes/productsRoute');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, './public/upload'),
@@ -70,6 +71,6 @@ const baseURL ='/api/v1/';
 app.use(`${baseURL}user`,userRoutes);
 app.use(`${baseURL}admin`,adminRouter);
 app.use(`${baseURL}category`,CategoryRouter);
-
+app.use(`${baseURL}product`,ProductsRouter);
 
 module.exports = app;
