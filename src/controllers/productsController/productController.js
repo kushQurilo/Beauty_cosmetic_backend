@@ -77,7 +77,7 @@ exports.updateProduct = async (req, res, next) => {
         if (!product) {
             return res.status(400).json({ message: "Product not found" });
         }
-        res.status(200).json({ product, success: true });
+        return res.status(200).json({ product, success: true });
     } catch (err) {
         return res.status(400).json({ message: err.message, success: false })
     }
@@ -114,66 +114,36 @@ exports.deleteProduct = async (req, res, next) => {
 // similor product
 exports.similarProduct = async (req, res, next) => {
     try {
-        const id = req.params.id;
-        if (!id) {
-            return res.status(400).json({ message: "Please category product id", success: false });
-        }
+        const pageNo = req.query.pageno;
+        const id = req.body.id
+        const limit = 5;
         const catId = new mongoose.Types.ObjectId(id)
-        const product = await ProductModel.find({ categoryId: catId })
-        if (!product) {
-            return res.status(400).json({ message: "Product not found", success: false });
-        }
-        return res.status(200).json({ product, success: true });
-    }
-    catch (err) {
-        return res.status(500)
-            .json(
-                {
-                    success: false,
-                    message: err.message
+        var totalCount = (await ProductModel.find({ categoryId: catId })).length;
+        const totalPage = Math.ceil(totalCount / limit)
+
+        if (pageNo <= totalPage) {
+            var offset = (pageNo - 1) * limit
+            const getProduct = await ProductModel.find({ categoryId: catId }).skip(offset).limit(limit)
+            if (getProduct) {
+                res.json({
+                    status: "success",
+                    message: "products find successfull",
+                    data: getProduct,
+                    pages: totalPage
                 })
-
-    }
-}
-exports.similarProduct = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const page = parseInt(req.query.page) || 1;
-        const limit = 6;
-        const skip = (page - 1) * limit;
-
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: "Invalid or missing product id", success: false });
+            } else {
+                res.json({
+                    status: "faild",
+                    message: "faild to fetch products"
+                })
+            }
         }
-
-        const currentProduct = await ProductModel.findById(id);
-        if (!currentProduct) {
-            return res.status(404).json({ message: "Product not found", success: false });
-        }
-        const similarProducts = await ProductModel.find({
-            categoryId: currentProduct.categoryId,
-            _id: { $ne: currentProduct._id }
-        })
-            .skip(skip)
-            .limit(limit);
-
-        const totalSimilar = await ProductModel.countDocuments({
-            categoryId: currentProduct.categoryId,
-            _id: { $ne: currentProduct._id }
-        });
-
-        return res.status(200).json({
-            success: true,
-            currentPage: page,
-            totalPages: Math.ceil(totalSimilar / limit),
-            totalResults: totalSimilar,
-            products: similarProducts
-        });
 
     } catch (err) {
-        return res.status(500).json({
-            success: false,
-            message: err.message
-        });
+        res.json({
+            status: "fail",
+            message: "unable to find Products",
+            error: err
+        })
     }
 };
