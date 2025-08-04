@@ -82,7 +82,6 @@ exports.deleteCategory = async (req, res, next) => {
 
 exports.getAllCategory = async (req, res, next) => {
     try {
-
         const category = await categoryModel.find({});
         if (!category) {
             return res.status(404)
@@ -111,19 +110,47 @@ exports.getSingleCategory = async (req, res, next) => {
             })
         }
         const singleCategory = await categoryModel.findById(catId);
-        if(!singleCategory){
+        if (!singleCategory) {
             return res.status(404)
-            .json({
-                message: "Category not found",
-                success:false
-            })
+                .json({
+                    message: "Category not found",
+                    success: false
+                })
         }
         res.status(200).json({
             success: true,
-            data:singleCategory
-            });
+            data: singleCategory
+        });
     } catch (err) {
         return res.status(500)
             .json({ success: false, message: err.message })
+    }
+}
+
+
+// search category
+exports.searchCategory = async (req, res, next) => {
+    try {
+        const search = req.query;
+        const query = { categoryname: { $regex: `^${search.name}`, $options: "i" } };
+        const category = await categoryModel.find(query);
+        if (!category) {
+            return res.status(404)
+                .json({
+                    success: false,
+                    message: "category not found."
+                })
+        }
+        return res.status(200)
+            .json({
+                success: true,
+                data: category
+            });
+    } catch (error) {
+        return res.status(500)
+            .json({
+                success: false,
+                message: error.message
+            })
     }
 }

@@ -72,5 +72,4 @@ app.use(`${baseURL}user`,userRoutes);
 app.use(`${baseURL}admin`,adminRouter);
 app.use(`${baseURL}category`,CategoryRouter);
 app.use(`${baseURL}product`,ProductsRouter);
-
 module.exports = app;
