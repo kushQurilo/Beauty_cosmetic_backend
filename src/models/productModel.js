@@ -22,6 +22,10 @@ const productSchema = new mongoose.Schema({
   carter:{
     type:Number,
     default:0
+  },
+  isFeature:{
+    type:Boolean,
+    default:false
   }
 })
 

@@ -1,4 +1,4 @@
-const { createProduct, getAllProducts, getSingleProduct, updateProduct, deleteProduct, similarProduct } = require('../controllers/productsController/productController');
+const { createProduct, getAllProducts, getSingleProduct, updateProduct, deleteProduct, similarProduct, featuredProducts } = require('../controllers/productsController/productController');
 const { adminAuthentication } = require('../middlewares/AdminAuthetication');
 const { roleAuthetication } = require('../middlewares/roleBaseAuthe');
 
@@ -9,4 +9,5 @@ ProductsRouter.get('/single/:id',adminAuthentication,roleAuthetication('admin','
 ProductsRouter.put('/:id',adminAuthentication,roleAuthetication('admin'),updateProduct);
 ProductsRouter.delete('/:id',adminAuthentication,roleAuthetication('admin'),deleteProduct)
 ProductsRouter.get('/similar',similarProduct);
+ProductsRouter.get('/feature',featuredProducts)
 module.exports = ProductsRouter;

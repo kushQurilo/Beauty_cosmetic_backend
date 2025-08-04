@@ -147,3 +147,28 @@ exports.similarProduct = async (req, res, next) => {
         })
     }
 };
+
+
+// featuered products 
+ exports.featuredProducts = async (req, res, next) => {
+        try{
+            const featuered = await ProductModel.find({isFeature:true}).select("-__v");
+            if(!featuered){
+                return res.status(404)
+                .json({
+                    success:false,
+                    message:"failed to fetch..."
+                })
+            }
+            return res.status(200)
+            .json({
+                success:true,
+                data:featuered})
+        }catch(err){
+            return res.status(500)
+            .json({
+                success:false,
+                message:err.message
+            })
+        }
+ }
