@@ -1,7 +1,13 @@
 const jwt = require('jsonwebtoken');
-const adminAutheication = async(req , res , next)=>{
+exports.adminAuthentication = async(req , res , next)=>{
    try{
-     const token = req.headers('authorization').split(' ')[1];
+      // console.log(req)
+     const Addmintoken = req.headers
+      if(!Addmintoken?.authorization){
+         return res.status(404)
+         .json({success:false,message:"Authenorization failed"})
+      }
+      const token = Addmintoken.authorization.split(' ')[1];
      const adminInfo =  jwt.verify(token,process.env.secretKey);
      if(adminInfo){
         req.admin_id = adminInfo._id

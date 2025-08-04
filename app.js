@@ -13,6 +13,8 @@ const { userSignup } = require('./src/controllers/userController/userController'
 const userRoutes = require('./src/routes/userRouter');
 const cloudinary = require('./src/config/cloudinary/cloudinary');
 const ImageUpload = require('./src/middlewares/ImageUploader');
+const CategoryRouter = require('./src/routes/categoryRoute');
+const adminRouter = require('./src/routes/adminRoute');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, './public/upload'),
@@ -66,15 +68,8 @@ const upload = multer({ storage });
 
 const baseURL ='/api/v1/';
 app.use(`${baseURL}user`,userRoutes);
-app.use('/hello',ImageUpload.array('img',4),async(req , res, next)=>{
- const obj ={
-    img1:"",
-    img2:"",
-    img3:"",
-    img4:""
- }
- 
-})
+app.use(`${baseURL}admin`,adminRouter);
+app.use(`${baseURL}category`,CategoryRouter);
 
 
 module.exports = app;
