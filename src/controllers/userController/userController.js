@@ -1,13 +1,14 @@
 const { default: mongoose } = require("mongoose");
 const userModel = require("../../models/userModel");
-
+const { hashPassword, compareHashPassword } = require("../../utitlies/hashyPassword");
+const jwt = require('jsonwebtoken');
 exports.userSignup = async (req, res, next) => {
     try {
         const { name, email, password, address, gstnumber, phone } = req.body;
         if (!name || !email || !password || !address || !gstnumber || !phone) {
             return res.status(400).json({ message: "Please fill all the fields" });
         }
-        const payload = { name, email, password, address, gstnumber, phone };
+        const payload = { name, email, password:hashPassword(password), address, gstnumber, phone };
         const user = await userModel.create(payload);
         if (!user) {
             return res.status(400).json({ message: "Faild to signup try again", success: false });
@@ -40,3 +41,31 @@ exports.getSingleUser = async (req, res, next) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
+
+
+//user login 
+exports.userLogin = async (req, res, next) => {
+   try{
+     const { email, password } = req.body;
+     if(!email || !password){
+        return res.status(400).json({message:"email and password missing" })
+        }
+      const isUser = await userModel.findOne({email});
+      if(isUser){
+        const match = compareHashPassword( password,isUser.password);
+        if(match){
+            const token = jwt.sign({id:isUser._id},process.env.customerKey,{expiresIn:"7d"});
+            return res.status(200)
+            .json({success:true,message:"login Success",token})
+        }
+        else{
+            return res.status(400).json({message:"invalid password" })
+        }
+      } else{
+        return res.json({success:false,message:"Email Not registered"})
+      }
+   }catch(error){
+    return res.status(500)
+    .json({ success: false, message: error.message })
+   }
+}
