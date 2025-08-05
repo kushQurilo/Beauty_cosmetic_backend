@@ -20,11 +20,13 @@ const userSchema = mongoose.Schema({
     },
     password:{
         type:String,
-        required:[true,"Password Required"]
+        required:[true,"Password Required"],
+        
     },
     address:{
         type:String,
-        required:[true ,"Address is required"]
+        required:[true ,"Address is required"],
+        max:100
     },
     gstnumber:{
         type:String,

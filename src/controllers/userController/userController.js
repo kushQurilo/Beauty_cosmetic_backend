@@ -2,11 +2,25 @@ const { default: mongoose } = require("mongoose");
 const userModel = require("../../models/userModel");
 const { hashPassword, compareHashPassword } = require("../../utitlies/hashyPassword");
 const jwt = require('jsonwebtoken');
+const { isValidGST } = require("../../utitlies/gstValidation");
 exports.userSignup = async (req, res, next) => {
     try {
         const { name, email, password, address, gstnumber, phone } = req.body;
         if (!name || !email || !password || !address || !gstnumber || !phone) {
             return res.status(400).json({ message: "Please fill all the fields" });
+        }
+        const gstTest = isValidGST(gstnumber);
+        if(!gstTest){
+            return res.json({
+                success:false,
+                message:"Invalid GST Number"
+            })
+        }
+        if(phone.length !==10){
+            return res.json({
+                success:false,
+                message:"Phone number should be 10 digits"
+                })
         }
         const payload = { name, email, password:hashPassword(password), address, gstnumber, phone };
         const user = await userModel.create(payload);
@@ -21,9 +35,7 @@ exports.userSignup = async (req, res, next) => {
     }
 }
 
-
 //get single user
-
 exports.getSingleUser = async (req, res, next) => {
     try {
         const { id } = req.params;

@@ -1,5 +1,6 @@
 
 const adminModel = require("../../models/adminModel");
+const userModel = require("../../models/userModel");
 const { hashPassword, compareHashPassword } = require("../../utitlies/hashyPassword");
 const jwt = require('jsonwebtoken');
 //singup admin
@@ -10,8 +11,8 @@ exports.adminSignup = async (req, res, next) => {
         if (!name || !email || !phone || !password) {
             return res.status(400).json({ message: "Please fill all the fields" });
         }
-        const existingAdmin = await adminModel.findOne({ email,phone });
-        if(existingAdmin){
+        const existingAdmin = await adminModel.findOne({ email, phone });
+        if (existingAdmin) {
             return res.status(400).json({ message: "Email / Phone already register" });
         }
         const payload = {
@@ -27,7 +28,7 @@ exports.adminSignup = async (req, res, next) => {
         return res.status(200).json({ message: "admin signup success" });
     }
     catch (err) {
-        return res.status(500).json({ message:err.message, });
+        return res.status(500).json({ message: err.message, });
     }
 }
 exports.adminLogin = async (req, res, next) => {
@@ -44,7 +45,7 @@ exports.adminLogin = async (req, res, next) => {
             const unlockTime = new Date(admin.lockAccount).toLocaleTimeString();
             return res.status(403).json({ message: `account locked until ${unlockTime}` })
         }
-        const passMatch = await compareHashPassword( password, admin.password);
+        const passMatch = await compareHashPassword(password, admin.password);
         if (!passMatch) {
             admin.failAttemp = (admin.failAttemp || 0) + 1;
             if (admin.failAttemp >= 3) {
@@ -132,29 +133,55 @@ exports.getAllUserProfiles = async (req, res, next) => {
 
 //approve user
 exports.approveUser = async (req, res, next) => {
-    try{
+    try {
         const { adminid } = req;
-    const { id } = req.params;
-    const {status} = req.body;
-    const isAdmin = await adminModel.findById(adminid);
-    if (!isAdmin) {
-        return res.status(404)
-            .json({ message: "Invalid admin", success: false });
-    }
-    if(!status){
-        return res.status(404)
-        .json({ message: "status is required", success: false });
-    }
-    const user = await userModel.findById(id);
-    if (!user) {
-        return res.status(404)
-            .json({ message: "User not found", success: false });
-    }
-    await user.updateOne({status:status});
-    user.save()
-
-    }
-    catch(err){
-        return res.status(500).json({ message: "something went wrong", success: false });
+        const { id } = req.params;
+        const isAdmin = await adminModel.findById(adminid);
+        if (!isAdmin) {
+            return res.status(404)
+                .json({ message: "Invalid admin", success: false });
         }
+        const user = await userModel.findById(id);
+        if (!user) {
+            return res.status(404)
+                .json({ message: "User not found", success: false });
+        }
+        await user.updateOne({ status: "approved" });
+        user.save()
+        return res.status(200)
+        .json({ success: true, message: "User approved" })
+    }
+    catch (err) {
+        return res.status(500).json({ message: "something went wrong", success: false });
+    }
+}
+
+
+
+// user search
+
+exports.searchUser = async (req, res, next) => {
+    try{
+        const search = req.query.q;
+        const query = {
+            $or:[
+                {name:{$regex:`^${search}`,$options:"i"}},
+                {email:{$regex:`^${search}`,$options:"i"}},
+                {phone:{$regex:`^${search}`,$options:"i"}},
+                {phone:{$regex:`^${search}`,$options:"i"}},
+                {gstnumber:{$regex:`^${search}`,$options:"i"}}
+            ]
+        }
+        const user = await userModel.find(query);
+        if(user.length ===0){
+            return res.status(404)
+            .json({
+                message: "User not found",
+            })
+        }
+        return res.status(200)
+        .json({success:true,data:user});
+    }catch(error){
+        return res.status(500).json({ message: error.message, success: false });
+    }
 }
