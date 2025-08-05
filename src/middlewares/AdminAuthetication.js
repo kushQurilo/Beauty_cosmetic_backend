@@ -9,8 +9,9 @@ exports.adminAuthentication = async(req , res , next)=>{
       }
       const token = Addmintoken.authorization.split(' ')[1];
      const adminInfo =  jwt.verify(token,process.env.secretKey);
+     console.log("admin",adminInfo)
      if(adminInfo){
-        req.admin_id = adminInfo._id
+        req.admin_id = adminInfo.id
         req.role = adminInfo.role
         next();
      }else{

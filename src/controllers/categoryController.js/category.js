@@ -134,7 +134,7 @@ exports.searchCategory = async (req, res, next) => {
         const search = req.query;
         const query = { categoryname: { $regex: `^${search.name}`, $options: "i" } };
         const category = await categoryModel.find(query);
-        if (!category) {
+        if (category.length ===0) {
             return res.status(404)
                 .json({
                     success: false,

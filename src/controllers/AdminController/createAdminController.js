@@ -107,8 +107,6 @@ exports.getSingleUser = async (req, res, next) => {
         return res.status(500).json({ message: "something went wrong", success: false });
     }
 }
-
-
 // get all users details 
 exports.getAllUserProfiles = async (req, res, next) => {
     try {
@@ -134,14 +132,14 @@ exports.getAllUserProfiles = async (req, res, next) => {
 //approve user
 exports.approveUser = async (req, res, next) => {
     try {
-        const { adminid } = req;
-        const { id } = req.params;
-        const isAdmin = await adminModel.findById(adminid);
+        const admin_id  = req.admin_id;
+        const { userid } = req.params;
+        const isAdmin = await adminModel.findById(admin_id);
         if (!isAdmin) {
             return res.status(404)
                 .json({ message: "Invalid admin", success: false });
         }
-        const user = await userModel.findById(id);
+        const user = await userModel.findById(userid);
         if (!user) {
             return res.status(404)
                 .json({ message: "User not found", success: false });
@@ -149,7 +147,7 @@ exports.approveUser = async (req, res, next) => {
         await user.updateOne({ status: "approved" });
         user.save()
         return res.status(200)
-        .json({ success: true, message: "User approved" })
+        .json({ success: true, message: "User approved" });
     }
     catch (err) {
         return res.status(500).json({ message: "something went wrong", success: false });
