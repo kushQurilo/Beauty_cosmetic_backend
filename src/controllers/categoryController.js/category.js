@@ -4,7 +4,8 @@ const categoryModel = require("../../models/categoryModel");
 
 exports.createCategory = async (req, res, next) => {
     try {
-        const { name } = req.body;
+        const { name } = req.body; 
+        console.log(name)
         if (!name) {
             return res.status(400).json({
                 message: "Please enter a category name"
