@@ -32,8 +32,10 @@ exports.createCategory = async (req, res, next) => {
 // update category
 exports.updateCategory = async (req, res, next) => {
     try {
-        const { id, name } = req.body;
-        const category = await categoryModel.findByIdAndUpdate(id, { categoryname: name }, {
+        const { id} = req.params
+        const { name } = req.body;
+        const objid = new mongoose.Types.ObjectId(id);
+        const category = await categoryModel.findByIdAndUpdate(objid, { categoryname: name }, {
             new: true
         });
         if (!category) {
@@ -133,7 +135,8 @@ exports.getSingleCategory = async (req, res, next) => {
 exports.searchCategory = async (req, res, next) => {
     try {
         const search = req.query;
-        const query = { categoryname: { $regex: `^${search.name}`, $options: "i" } };
+        console.log(search);
+        const query = { categoryname: { $regex: `^${search.search}`, $options: "i" } };
         const category = await categoryModel.find(query);
         if (category.length ===0) {
             return res.status(404)

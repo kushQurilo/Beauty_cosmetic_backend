@@ -5,7 +5,7 @@ const { roleAuthetication } = require('../middlewares/roleBaseAuthe');
 const CategoryRouter = require('express').Router();
 CategoryRouter.get('/search_cate',searchCategory);
 CategoryRouter.post('/',adminAuthentication,roleAuthetication('admin'),createCategory);
-CategoryRouter.put('/',adminAuthentication,roleAuthetication('admin'),updateCategory);
+CategoryRouter.put('/:id',adminAuthentication,roleAuthetication('admin'),updateCategory);
 CategoryRouter.delete('/:id',adminAuthentication,roleAuthetication('admin'),deleteCategory);
 CategoryRouter.get('/',adminAuthentication,getAllCategory);
 CategoryRouter.get('/:id',adminAuthentication,getSingleCategory);
