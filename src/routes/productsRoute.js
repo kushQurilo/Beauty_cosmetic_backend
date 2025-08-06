@@ -1,9 +1,10 @@
 const { createProduct, getAllProducts, getSingleProduct, updateProduct, deleteProduct, similarProduct, featuredProducts } = require('../controllers/productsController/productController');
 const { adminAuthentication } = require('../middlewares/AdminAuthetication');
+const ImageUpload = require('../middlewares/ImageUploader');
 const { roleAuthetication } = require('../middlewares/roleBaseAuthe');
 
 const ProductsRouter = require('express').Router();
-ProductsRouter.post('/',adminAuthentication ,roleAuthetication('admin'),createProduct)
+ProductsRouter.post('/',adminAuthentication,ImageUpload.array('image',5),roleAuthetication('admin'),createProduct)
 ProductsRouter.get('/',adminAuthentication,roleAuthetication('admin','user'),getAllProducts)
 ProductsRouter.get('/single/:id',adminAuthentication,roleAuthetication('admin','user'),getSingleProduct);
 ProductsRouter.put('/:id',adminAuthentication,roleAuthetication('admin'),updateProduct);

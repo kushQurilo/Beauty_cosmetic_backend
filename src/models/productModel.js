@@ -26,6 +26,10 @@ const productSchema = new mongoose.Schema({
   isFeature:{
     type:Boolean,
     default:false
+  },
+  images:{
+    type:[String],
+    default:[]
   }
 })
 
