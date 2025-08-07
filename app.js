@@ -1,10 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const cookie = require('cookie-parser');
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cors());
-
+app.use(cookie());
 const xlsx = require('xlsx');
 const path = require('path');
 const fs = require('fs');

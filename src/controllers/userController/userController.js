@@ -10,19 +10,19 @@ exports.userSignup = async (req, res, next) => {
             return res.status(400).json({ message: "Please fill all the fields" });
         }
         const gstTest = isValidGST(gstnumber);
-        if(!gstTest){
+        if (!gstTest) {
             return res.json({
-                success:false,
-                message:"Invalid GST Number"
+                success: false,
+                message: "Invalid GST Number"
             })
         }
-        if(phone.length !==10){
+        if (phone.length !== 10) {
             return res.json({
-                success:false,
-                message:"Phone number should be 10 digits"
-                })
+                success: false,
+                message: "Phone number should be 10 digits"
+            })
         }
-        const payload = { name, email, password:hashPassword(password), address, gstnumber, phone };
+        const payload = { name, email, password: hashPassword(password), address, gstnumber, phone };
         const user = await userModel.create(payload);
         if (!user) {
             return res.status(400).json({ message: "Faild to signup try again", success: false });
@@ -57,27 +57,47 @@ exports.getSingleUser = async (req, res, next) => {
 
 //user login 
 exports.userLogin = async (req, res, next) => {
-   try{
-     const { email, password } = req.body;
-     if(!email || !password){
-        return res.status(400).json({message:"email and password missing" })
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: "email and password missing" })
         }
-      const isUser = await userModel.findOne({email});
-      if(isUser){
-        const match = compareHashPassword( password,isUser.password);
-        if(match){
-            const token = jwt.sign({id:isUser._id},process.env.customerKey,{expiresIn:"7d"});
-            return res.status(200)
-            .json({success:true,message:"login Success",token})
+        const isUser = await userModel.findOne({ email });
+        if (isUser) {
+            const match = await compareHashPassword(password, isUser.password);
+            if (match) {
+                const token = jwt.sign({ id: isUser._id }, process.env.customerKey, { expiresIn: "7d" });
+                res.cookie('token', token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 7 * 24 * 60 * 60 * 1000
+                })
+                return res.status(200)
+                    .json({ success: true, message: "login Success" })
+            }
+            else {
+                return res.status(400).json({ message: "invalid password" })
+            }
+        } else {
+            return res.json({ success: false, message: "Email Not registered" })
         }
-        else{
-            return res.status(400).json({message:"invalid password" })
-        }
-      } else{
-        return res.json({success:false,message:"Email Not registered"})
-      }
-   }catch(error){
-    return res.status(500)
-    .json({ success: false, message: error.message })
-   }
+    } catch (error) {
+        return res.status(500)
+            .json({ success: false, message: error.message })
+    }
+}
+
+//logout
+
+exports.userLogout = async (req, res, next) => {
+    try {
+        res.clearCookie('token', {
+            httpOnly: 'true',
+            secure: process.env.NODE_ENV === 'production'
+        })
+        return res.status(200).json({ success: true, message: "logout Success" })
+    } catch (error) {
+        return res.status(500)
+            .json({ success: false, message: error.message })
+    }
 }

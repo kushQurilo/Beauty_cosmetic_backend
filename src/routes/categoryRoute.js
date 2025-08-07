@@ -7,8 +7,8 @@ CategoryRouter.get('/search_cate',searchCategory);
 CategoryRouter.post('/',adminAuthentication,roleAuthetication('admin'),createCategory);
 CategoryRouter.put('/:id',adminAuthentication,roleAuthetication('admin'),updateCategory);
 CategoryRouter.delete('/:id',adminAuthentication,roleAuthetication('admin'),deleteCategory);
-CategoryRouter.get('/',adminAuthentication,getAllCategory);
-CategoryRouter.get('/:id',adminAuthentication,getSingleCategory);
+CategoryRouter.get('/',getAllCategory);
+CategoryRouter.get('/:id',getSingleCategory);
 
 module.exports = CategoryRouter;
 
