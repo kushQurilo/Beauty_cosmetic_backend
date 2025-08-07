@@ -138,40 +138,48 @@ exports.deleteProduct = async (req, res, next) => {
 // similor product
 exports.similarProduct = async (req, res, next) => {
     try {
-        const pageNo = req.query.pageno;
-        const id = req.body.id
+        const pageNo = Number(req.query.pageno);
+        const id = req.body.id || req.query.id || 0;  // allow flexibility
+        console.log("Category ID:", id);
+
+        if (!id || !pageNo) {
+            return res.status(400).json({ status: "success", message: "Missing id or pageno" });
+        }
+
         const limit = 5;
-        const catId = new mongoose.Types.ObjectId(id)
-        var totalCount = (await ProductModel.find({ categoryId: catId })).length;
-        const totalPage = Math.ceil(totalCount / limit)
+        const catId = new mongoose.Types.ObjectId(id);
+
+        const totalCount = await ProductModel.countDocuments({ categoryId: catId });
+        const totalPage = Math.ceil(totalCount / limit);
 
         if (pageNo <= totalPage) {
-            var offset = (pageNo - 1) * limit
-            const getProduct = await ProductModel.find({ categoryId: catId }).skip(offset).limit(limit)
-            if (getProduct) {
-                res.json({
-                    status: "success",
-                    message: "products find successfull",
-                    data: getProduct,
-                    pages: totalPage
-                })
-            } else {
-                res.json({
-                    status: "faild",
-                    message: "faild to fetch products"
-                })
-            }
+            const offset = (pageNo - 1) * limit;
+            const getProduct = await ProductModel.find({ categoryId: catId })
+                .skip(offset)
+                .limit(limit);
+
+            return res.json({
+                status: "success",
+                message: "Products fetched successfully",
+                data: getProduct,
+                pages: totalPage
+            });
+        } else {
+            return res.json({
+                status: "fail",
+                message: "Page number exceeds available pages"
+            });
         }
 
     } catch (err) {
-        res.json({
+        console.error("Error fetching similar products:", err);
+        res.status(500).json({
             status: "fail",
-            message: "unable to find Products",
-            error: err
-        })
+            message: "Unable to find products",
+            error: err.message
+        });
     }
 };
-
 
 // featuered products 
 exports.featuredProducts = async (req, res, next) => {

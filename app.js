@@ -4,7 +4,10 @@ const app = express();
 const cookie = require('cookie-parser');
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use(cors());
+app.use(cors({
+  origin:'http://localhost:3000',
+  credentials:true
+}));
 app.use(cookie());
 const xlsx = require('xlsx');
 const path = require('path');
