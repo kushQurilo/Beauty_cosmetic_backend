@@ -3,43 +3,67 @@ const ProductModel = require("../../models/productModel");
 const cloudinary = require('../../config/cloudinary/cloudinary')
 const fs = require('fs');
 exports.createProduct = async (req, res, next) => {
-    try {
-        const files = req.files;
+  try {
+    const files = req.files;
 
-        if (!files || files.length === 0) {
-            return res.status(400).json({ message: "Please upload a file" });
-        }
-
-        const images = [];
-        const { name, price, description, categoryId } = req.body;
-
-        if (!name || !price || !description || !categoryId) {
-            return res.status(400).json({ message: "Please fill all the fields" });
-        }
-
-        for (const file of files) {
-            const uploadCloud = await cloudinary.uploader.upload(file.path, {
-                folder: "BS Products"
-            });
-            images.push(uploadCloud.secure_url);
-            fs.unlinkSync(file.path); 
-        }
-        const payload = { name, price, description, categoryId, images };
-        const product = await ProductModel.create(payload);
-
-        if (!product) {
-            return res.status(400).json({ message: "Failed to create product" });
-        }
-
-        res.status(201).json({
-            message: "Product created successfully",
-            success: true,
-            product
-        });
-
-    } catch (err) {
-        return res.status(500).json({ message: err.message, success: false });
+    if (!files || files.length === 0) {
+      return res.status(400).json({ message: "Please upload at least one image" });
     }
+
+    const images = [];
+    const { name, price, description, categoryId, points } = req.body;
+
+    if (!name || !price || !description || !categoryId) {
+      return res.status(400).json({ message: "Please fill all required fields" });
+    }
+
+    // Upload images to Cloudinary
+    for (const file of files) {
+      const uploadCloud = await cloudinary.uploader.upload(file.path, {
+        folder: "BS Products"
+      });
+      images.push(uploadCloud.secure_url);
+      fs.unlinkSync(file.path); // delete from local after upload
+    }
+
+    // Parse points (make sure it's an array)
+    let parsedPoints = [];
+    if (points) {
+      // If `points` comes as a JSON string (like from Postman or frontend), parse it
+      parsedPoints = typeof points === 'string' ? JSON.parse(points) : points;
+
+      if (!Array.isArray(parsedPoints)) {
+        return res.status(400).json({ message: "Points must be an array of strings" });
+      }
+    }
+
+    // Build payload
+    const payload = {
+      name,
+      price,
+      description,
+      categoryId,
+      images,
+      points: parsedPoints
+    };
+
+    // Create product
+    const product = await ProductModel.create(payload);
+
+    if (!product) {
+      return res.status(400).json({ message: "Failed to create product" });
+    }
+
+    return res.status(201).json({
+      message: "Product created successfully",
+      success: true,
+      product
+    });
+
+  } catch (err) {
+    console.error("Create product error:", err);
+    return res.status(500).json({ message: err.message, success: false });
+  }
 };
 // get all products
 exports.getAllProducts = async (req, res, next) => {

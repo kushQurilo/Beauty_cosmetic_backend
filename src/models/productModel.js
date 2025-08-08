@@ -30,6 +30,10 @@ const productSchema = new mongoose.Schema({
   images:{
     type:[String],
     default:[]
+  },
+  points:{
+    type:[String],
+    default:[]
   }
 })
 
